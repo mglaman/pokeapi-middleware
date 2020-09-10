@@ -4,39 +4,35 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f31fd7d9914b3e3dca5f14de4146e73f",
+    "content-hash": "fde9fd28ce74263b5eebb4e7889f2229",
     "packages": [
         {
-            "name": "api-clients/rx",
-            "version": "2.2.1",
+            "name": "clue/ndjson-react",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/php-api-clients/rx.git",
-                "reference": "c38d42768ebdb6e396066bc03055c3c9117bc6e9"
+                "url": "https://github.com/clue/reactphp-ndjson.git",
+                "reference": "767ec9543945802b5766fab0da4520bf20626f66"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-api-clients/rx/zipball/c38d42768ebdb6e396066bc03055c3c9117bc6e9",
-                "reference": "c38d42768ebdb6e396066bc03055c3c9117bc6e9",
+                "url": "https://api.github.com/repos/clue/reactphp-ndjson/zipball/767ec9543945802b5766fab0da4520bf20626f66",
+                "reference": "767ec9543945802b5766fab0da4520bf20626f66",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.0",
-                "react/promise": "^2.4",
-                "reactivex/rxphp": "^2.0"
+                "php": ">=5.3",
+                "react/stream": "^1.0 || ^0.7 || ^0.6"
             },
             "require-dev": {
-                "api-clients/test-utilities": "^3.0.1"
+                "phpunit/phpunit": "^7.0 || ^6.0 || ^5.7 || ^4.8.35",
+                "react/event-loop": "^1.0 || ^0.5 || ^0.4 || ^0.3"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "ApiClients\\Tools\\Rx\\": "src/"
-                },
-                "files": [
-                    "src/functions_include.php",
-                    "src/bootstrap.php"
-                ]
+                    "Clue\\React\\NDJson\\": "src/"
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -44,11 +40,21 @@
             ],
             "authors": [
                 {
-                    "name": "Cees-Jan Kiewiet",
-                    "email": "ceesjank@gmail.com"
+                    "name": "Christian Lück",
+                    "email": "christian@clue.engineering"
                 }
             ],
-            "time": "2017-10-04T20:00:12+00:00"
+            "description": "Streaming newline-delimited JSON (NDJSON) parser and encoder for ReactPHP.",
+            "homepage": "https://github.com/clue/reactphp-ndjson",
+            "keywords": [
+                "NDJSON",
+                "json",
+                "jsonlines",
+                "newline",
+                "reactphp",
+                "streaming"
+            ],
+            "time": "2020-02-04T11:48:52+00:00"
         },
         {
             "name": "evenement/evenement",
@@ -758,71 +764,6 @@
             "time": "2020-05-04T10:17:57+00:00"
         },
         {
-            "name": "reactivex/rxphp",
-            "version": "2.0.7",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ReactiveX/RxPHP.git",
-                "reference": "fd74a0cd2b5edd4a48e4ff12aaa44cc6cdc4a9b4"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ReactiveX/RxPHP/zipball/fd74a0cd2b5edd4a48e4ff12aaa44cc6cdc4a9b4",
-                "reference": "fd74a0cd2b5edd4a48e4ff12aaa44cc6cdc4a9b4",
-                "shasum": ""
-            },
-            "require": {
-                "php": "~7.0",
-                "react/promise": "~2.2"
-            },
-            "require-dev": {
-                "phpunit/phpcov": "^3.1",
-                "phpunit/phpunit": "^5.7",
-                "react/event-loop": "^1.0 || ^0.5 || ^0.4.2",
-                "satooshi/php-coveralls": "~1.0"
-            },
-            "suggest": {
-                "react/event-loop": "Used for scheduling async operations"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Rx\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Alexander",
-                    "email": "iam.asm89@gmail.com"
-                },
-                {
-                    "name": "David Dan",
-                    "email": "davidwdan@gmail.com"
-                },
-                {
-                    "name": "Matt Bonneau",
-                    "email": "matt@bonneau.net"
-                }
-            ],
-            "description": "Reactive extensions for php.",
-            "homepage": "https://github.com/ReactiveX/RxPHP",
-            "keywords": [
-                "extensions",
-                "reactive",
-                "rx"
-            ],
-            "time": "2018-04-18T01:34:36+00:00"
-        },
-        {
             "name": "ringcentral/psr7",
             "version": "1.3.0",
             "source": {
@@ -1188,51 +1129,6 @@
                 }
             ],
             "time": "2020-07-14T19:26:25+00:00"
-        },
-        {
-            "name": "wyrihaximus/react-stream-json",
-            "version": "1.3.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/WyriHaximus/reactphp-stream-json.git",
-                "reference": "17a5d15a2f71e4094732a2cec40d15dae28a949e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/WyriHaximus/reactphp-stream-json/zipball/17a5d15a2f71e4094732a2cec40d15dae28a949e",
-                "reference": "17a5d15a2f71e4094732a2cec40d15dae28a949e",
-                "shasum": ""
-            },
-            "require": {
-                "api-clients/rx": "^2.2",
-                "php": "^7.2",
-                "react/promise": "^2.7",
-                "react/stream": "^1.1.0",
-                "reactivex/rxphp": "^2.0"
-            },
-            "require-dev": {
-                "react/promise-stream": "^1.1",
-                "wyrihaximus/async-test-utilities": "^1.1",
-                "wyrihaximus/ticking-promise": "^1.6"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "WyriHaximus\\React\\Stream\\Json\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Cees-Jan Kiewiet",
-                    "email": "ceesjank@gmail.com"
-                }
-            ],
-            "description": "Incremental JSON encoder writing to a react/stream",
-            "time": "2019-04-28T17:39:12+00:00"
         }
     ],
     "packages-dev": [
