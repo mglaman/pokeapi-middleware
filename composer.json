@@ -1,0 +1,24 @@
+{
+    "name": "mglaman/pokeapi-middleware",
+    "description": "An example middleware",
+    "type": "project",
+    "require": {
+        "react/http": "^1.0",
+        "react/event-loop": "^1.1",
+        "wyrihaximus/react-stream-json": "^1.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.3",
+        "phpstan/phpstan": "^0.12.42",
+        "phpstan/extension-installer": "^1.0",
+        "phpstan/phpstan-strict-rules": "^0.12.5"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Matt Glaman",
+            "email": "nmd.matt@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable"
+}
