@@ -21,8 +21,6 @@ final class PokemonMaster
 
         $stream = new WritableResourceStream(fopen('artifacts/pokemon.json', 'wb'), $this->loop);
         $this->artifact = new Encoder($stream, JSON_UNESCAPED_SLASHES);
-
-        $this->nextUrl = $_ENV['POKEAPI_URL'] . '/pokemon';
     }
 
     private function normalizePokemon(object $pokemon, object $species)
