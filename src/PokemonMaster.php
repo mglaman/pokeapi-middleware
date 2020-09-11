@@ -8,7 +8,7 @@ use React\EventLoop\LoopInterface;
 use React\Http\Browser;
 use React\Stream\WritableResourceStream;
 
-final class PokemonCatcher
+final class PokemonMaster
 {
     private $loop;
     private $client;

@@ -1,12 +1,12 @@
 <?php declare(strict_types=1);
 
-use mglaman\PokeAPiMiddleware\PokemonCatcher;
+use mglaman\PokeAPiMiddleware\PokemonMaster;
 
 require __DIR__ . '/vendor/autoload.php';
 
 $loop = React\EventLoop\Factory::create();
 
-$catcher = new PokemonCatcher($loop);
+$catcher = new PokemonMaster($loop);
 $catcher->catchEmAll();
 
 $loop->run();
