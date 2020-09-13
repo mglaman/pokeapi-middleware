@@ -5,7 +5,9 @@ namespace mglaman\PokeAPiMiddleware;
 use Clue\React\NDJson\Decoder;
 use Psr\Http\Message\ResponseInterface;
 use React\EventLoop\LoopInterface;
+use React\EventLoop\TimerInterface;
 use React\Http\Browser;
+use React\Socket\Connector;
 use React\Stream\ReadableResourceStream;
 
 final class PokeTransporter
@@ -21,7 +23,7 @@ final class PokeTransporter
     private $client;
 
     /**
-     * @var \Clue\React\NDJson\Encoder
+     * @var \Clue\React\NDJson\Decoder
      */
     private $artifact;
 
@@ -30,10 +32,17 @@ final class PokeTransporter
      */
     private $authHeader;
 
+    private $pokemon = [];
+
     public function __construct(LoopInterface $loop)
     {
         $this->loop = $loop;
-        $this->client = new Browser($loop);
+        $this->client = new Browser($loop, new Connector($loop, [
+            'tls' => [
+                // Locally, mkcert is not being validated.
+                'verify_peer' => false,
+            ],
+        ]));
 
         $stream = new ReadableResourceStream(fopen('artifacts/pokemon.json', 'rb'), $this->loop);
         $this->artifact = new Decoder($stream);
@@ -57,7 +66,8 @@ final class PokeTransporter
 
     private function ensureEntry(\stdClass $pokemon)
     {
-        $this->loop->addTimer(0.5, function () use ($pokemon): void {
+        $this->loop->futureTick(function () use ($pokemon): void {
+            print "Checking {$pokemon->id}" . PHP_EOL;
             $this->client
             ->get($_ENV['DRUPAL_API_URL'] . '/jsonapi/node/pokemon?filter[field_guid]=' . $pokemon->id, [
                 'Accept' => 'application/vnd.api+json',
@@ -72,6 +82,8 @@ final class PokeTransporter
                 } else {
                     print "[error] There are multiple records for {$pokemon->id} in the destination API." . PHP_EOL;
                 }
+            }, function (\RuntimeException $data) use ($pokemon) {
+                print "[error] Rejected for {$pokemon->id} :" . $data->getMessage() . PHP_EOL;
             });
         });
     }
@@ -79,7 +91,17 @@ final class PokeTransporter
     public function sync(): void
     {
         $this->artifact->on('data', function ($data): void {
-            $this->ensureEntry(($data));
+            $this->pokemon[] = $data;
+        });
+        $this->loop->addPeriodicTimer(0.5, function (TimerInterface $timer) {
+            if (!$this->artifact->isReadable() && count($this->pokemon) === 0) {
+                $this->loop->cancelTimer($timer);
+                return;
+            }
+
+            $pokemon = array_shift($this->pokemon);
+            print "Processing {$pokemon->id}." . PHP_EOL;
+            $this->ensureEntry($pokemon);
         });
     }
 }
