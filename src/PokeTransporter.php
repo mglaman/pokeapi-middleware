@@ -39,7 +39,7 @@ final class PokeTransporter
         $this->loop = $loop;
         $this->client = new Browser($loop, new Connector($loop, [
             'tls' => [
-                // Locally, mkcert is not being validated.
+                // mkcert CA is not being validated.
                 'verify_peer' => false,
             ],
         ]));
@@ -50,10 +50,46 @@ final class PokeTransporter
         $this->authHeader = 'Basic ' . base64_encode("{$_ENV['DRUPAL_API_USER']}:{$_ENV['DRUPAL_API_PASS']}");
     }
 
+    private function getItemByLangcode(array $property)
+    {
+        $items = array_filter($property, static function (\stdClass $item) {
+            return $item->langcode === 'en';
+        });
+        return reset($items);
+    }
+
     private function createNode(\stdClass $pokemon)
     {
         $this->loop->futureTick(function () use ($pokemon): void {
-            print "Must create {$pokemon->id}" . PHP_EOL;
+            $name = $this->getItemByLangcode($pokemon->name);
+            $description = $this->getItemByLangcode($pokemon->description);
+            $genus = $this->getItemByLangcode($pokemon->genus);
+            $document = [
+                'data' => [
+                    'type' => 'node--pokemon',
+                    'attributes' => [
+                        'title' => $name->value,
+                        'field_description' => $description->value,
+                        'field_genus' => $genus->value,
+                        'field_guid' => $pokemon->id,
+                        'field_image' => $pokemon->image,
+                        'field_legendary' => $pokemon->legendary,
+                        'field_baby' => $pokemon->baby,
+                        'field_mythical' => $pokemon->mythical,
+                    ],
+                ],
+            ];
+            $this->client
+            ->post($_ENV['DRUPAL_API_URL'] . '/jsonapi/node/pokemon', [
+                'Accept' => 'application/vnd.api+json',
+                'Content-Type' => 'application/vnd.api+json',
+                'Authorization' => $this->authHeader,
+            ], \json_encode($document))
+            ->then(function (ResponseInterface $response) use ($pokemon) {
+                print "Created {$pokemon->id}" . PHP_EOL;
+            }, static function ($data) use ($pokemon) {
+                print "[error] Could not create {$pokemon->id}";
+            });
         });
     }
 
