@@ -7,6 +7,7 @@ use Psr\Http\Message\ResponseInterface;
 use React\EventLoop\LoopInterface;
 use React\EventLoop\TimerInterface;
 use React\Http\Browser;
+use React\Http\Message\ResponseException;
 use React\Socket\Connector;
 use React\Stream\ReadableResourceStream;
 
@@ -64,18 +65,22 @@ final class PokeTransporter
             $name = $this->getItemByLangcode($pokemon->name);
             $description = $this->getItemByLangcode($pokemon->description);
             $genus = $this->getItemByLangcode($pokemon->genus);
+            if (empty($name)) {
+                return;
+            }
             $document = [
                 'data' => [
                     'type' => 'node--pokemon',
                     'attributes' => [
                         'title' => $name->value,
-                        'field_description' => $description->value,
-                        'field_genus' => $genus->value,
+                        'field_description' => $description->value ?? '',
+                        'field_genus' => $genus->value ?? '',
                         'field_guid' => $pokemon->id,
                         'field_image' => $pokemon->image,
                         'field_legendary' => $pokemon->legendary,
                         'field_baby' => $pokemon->baby,
                         'field_mythical' => $pokemon->mythical,
+                        'field_order' => $pokemon->order < 0 ? 1000 : $pokemon->order,
                     ],
                 ],
             ];
@@ -86,9 +91,9 @@ final class PokeTransporter
                 'Authorization' => $this->authHeader,
             ], \json_encode($document))
             ->then(function (ResponseInterface $response) use ($pokemon) {
-                print "Created {$pokemon->id}" . PHP_EOL;
+                print "[{$response->getStatusCode()}]Created {$pokemon->id}" . PHP_EOL;
             }, static function ($data) use ($pokemon) {
-                print "[error] Could not create {$pokemon->id}";
+                print "[error] Could not create {$pokemon->id}" . PHP_EOL;
             });
         });
     }
@@ -96,7 +101,41 @@ final class PokeTransporter
     private function updateNode(\stdClass $pokemon, \stdClass $node)
     {
         $this->loop->futureTick(function () use ($pokemon, $node): void {
-            print "Must update {$pokemon->id}" . PHP_EOL;
+            $name = $this->getItemByLangcode($pokemon->name);
+            $description = $this->getItemByLangcode($pokemon->description);
+            $genus = $this->getItemByLangcode($pokemon->genus);
+            $document = [
+                'data' => [
+                    'type' => 'node--pokemon',
+                    'id' => $node->id,
+                    'attributes' => [
+                        'title' => $name->value,
+                        'field_description' => $description->value ?? '',
+                        'field_genus' => $genus->value ?? '',
+                        'field_guid' => $pokemon->id,
+                        'field_image' => $pokemon->image,
+                        'field_legendary' => $pokemon->legendary,
+                        'field_baby' => $pokemon->baby,
+                        'field_mythical' => $pokemon->mythical,
+                        'field_order' => $pokemon->order < 0 ? 1000 : $pokemon->order,
+                    ],
+                ],
+            ];
+            $this->client
+                ->patch($_ENV['DRUPAL_API_URL'] . '/jsonapi/node/pokemon/' . $node->id, [
+                    'Accept' => 'application/vnd.api+json',
+                    'Content-Type' => 'application/vnd.api+json',
+                    'Authorization' => $this->authHeader,
+                ], \json_encode($document))
+                ->then(function (ResponseInterface $response) use ($pokemon) {
+                    print "[{$response->getStatusCode()}] Updated {$pokemon->id}" . PHP_EOL;
+                }, static function ($data) use ($pokemon) {
+                    $reason = '';
+                    if ($data instanceof ResponseException) {
+                        $reason = (string) $data->getResponse()->getBody();
+                    }
+                    print "[error] Could not update {$pokemon->id}: " . $reason;
+                });
         });
     }
 
@@ -110,7 +149,7 @@ final class PokeTransporter
                 'Authorization' => $this->authHeader,
             ])
             ->then(function (ResponseInterface $response) use ($pokemon): void {
-                $document = \json_decode((string) $response->getBody());
+                $document = \json_decode((string) $response->getBody(), false, 512, JSON_THROW_ON_ERROR);
                 if (count($document->data) === 0) {
                     $this->createNode($pokemon);
                 } elseif (count($document->data) === 1) {

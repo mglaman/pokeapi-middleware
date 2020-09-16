@@ -10,6 +10,7 @@
     },
     "require": {
         "php": ">=7.4",
+        "ext-json": "*",
         "clue/ndjson-react": "^1.1",
         "react/event-loop": "^1.1",
         "react/http": "^1.0",
